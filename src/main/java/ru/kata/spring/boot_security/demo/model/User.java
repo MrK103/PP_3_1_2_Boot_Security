@@ -17,6 +17,16 @@ public class User implements UserDetails {
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long userId;
 
+   public User(String name, String surname, byte age, String email, String username, String password, Set<Role> roles) {
+      this.name = name;
+      this.surname = surname;
+      this.age = age;
+      this.email = email;
+      this.username = username;
+      this.password = password;
+      this.roles = roles;
+   }
+
    @Pattern(regexp = "[A-Za-z]{2,15}", message = "Name should be between 2 and 15 latin characters")
    private String name;
 

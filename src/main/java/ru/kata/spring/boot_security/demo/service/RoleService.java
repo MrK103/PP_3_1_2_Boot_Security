@@ -7,9 +7,7 @@ import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.repo.RoleRepository;
 
 import javax.annotation.PostConstruct;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class RoleService {
@@ -27,8 +25,10 @@ public class RoleService {
     public Set<Role> findByIdRoles(List<Long> roles) {
         return new HashSet<>(roleRepository.findAllById(roles));
     }
-    public Role findByIdRoles(Long id) {
-        return roleRepository.getOne(id);
+    public Set<Role> findByIdRoles(Long id) {
+        List<Long> roles  = new LinkedList<>();
+        roles.add(id);
+        return findByIdRoles(roles);
     }
 
     @PostConstruct
