@@ -1,6 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +13,7 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Controller
 public class AdminController {
@@ -24,58 +26,40 @@ public class AdminController {
         this.roleService = roleService;
         this.userService = userService;
     }
-
     @GetMapping("/admin")
-    public String showUsers(@RequestParam(defaultValue = "0") int count, Model model){
+    public String showAdminPage(@AuthenticationPrincipal User user, Model model) {
         model.addAttribute("users", userService.getAllUser());
+        model.addAttribute("user", user);
+        model.addAttribute("roles", roleService.getAllRoles());
         return "users";
     }
-    @DeleteMapping("admin/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id){
+
+    @DeleteMapping("/delete/{id}")
+    public String deleteUser(@PathVariable("id") long id) {
         userService.deleteUser(id);
         return "redirect:/admin";
     }
-    @GetMapping("admin/edit/{id}")
-    public String pageEditUser(@PathVariable("id") long id, Model model) {
-        model.addAttribute("user",userService.getById(id));
-        model.addAttribute("listRoles",roleService.findAllRole());
-        return "edit";
-    }
 
-    @PutMapping("admin/edit")
-    public String pageEdit(@RequestParam("role")ArrayList<Long> roles,
-                           @Valid User user,
-                           BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "edit";
-        } else {
-            user.setRoles(roleService.findByIdRoles(roles));
+    @PutMapping("/edit/{id}")
+    public String pageEdit(@PathVariable("id") long id,
+                           @Valid User user) {
+//            user.setRoles(roleService.findByIdRoles(roles));
+        System.out.println(user.getUsername() +" " + user.getName());
             userService.save(user);
             return "redirect:/admin";
-        }
     }
-    @GetMapping("admin/new")
-    public String pageCreateUser(User user, Model model) {
-        model.addAttribute("listRoles",roleService.findAllRole());
-        return "create";
+    @GetMapping("/add")
+    public String newUserPage(@AuthenticationPrincipal User user, Model model) {
+        model.addAttribute("user", user);
+        model.addAttribute("roles", roleService.findAllRole());
+        return "newUser";
     }
 
-    @PostMapping("admin/new")
-    public String pageCreate(@RequestParam("role") ArrayList<Long> roles,
-                             @ModelAttribute("user") @Valid User user,
-                             BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "create";
-        }
-        if (userService.findByUsername(user.getUsername()) != null) {
-            bindingResult.addError(new FieldError("username", "username",
-                    String.format("User with name \"%s\" is already exist!", user.getUsername())));
-            return "create";
-        }
-        user.setRoles(roleService.findByIdRoles(roles));
+    @PostMapping("/new")
+    public String createUser(@ModelAttribute("user") User user) {
+
         userService.save(user);
         return "redirect:/admin";
     }
-
 
 }

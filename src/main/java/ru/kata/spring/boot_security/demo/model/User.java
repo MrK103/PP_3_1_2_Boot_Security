@@ -1,11 +1,14 @@
 package ru.kata.spring.boot_security.demo.model;
 
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -17,7 +20,7 @@ public class User implements UserDetails {
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long userId;
 
-   public User(String name, String surname, byte age, String email, String username, String password, Set<Role> roles) {
+   public User(String name, String surname, byte age, String email, String username, String password, List<Role> roles) {
       this.name = name;
       this.surname = surname;
       this.age = age;
@@ -42,7 +45,7 @@ public class User implements UserDetails {
 
    @NotEmpty(message = "Username cannot be empty")
    @Size(min = 2, max = 15, message = "Name should be between 2 and 15 latin characters")
-   @Column(unique = true)
+//   @Column(unique = true)
    private String username;
 
    @NotEmpty(message = "Password cannot be empty")
@@ -50,10 +53,11 @@ public class User implements UserDetails {
    private String password;
 
    @ManyToMany(fetch = FetchType.LAZY)
+   @Fetch(FetchMode.JOIN)
    @JoinTable(name = "users_roles",
-           joinColumns = @JoinColumn(name = "userId"),
-           inverseJoinColumns = @JoinColumn(name = "roleId"))
-   private Set<Role> roles;
+           joinColumns = @JoinColumn(name = "userid"),
+           inverseJoinColumns = @JoinColumn(name = "roleid"))
+   private List<Role> roles;
 
    public User() {
    }

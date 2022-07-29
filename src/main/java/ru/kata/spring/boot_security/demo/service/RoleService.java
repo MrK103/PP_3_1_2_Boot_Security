@@ -22,10 +22,10 @@ public class RoleService {
         return roleRepository.findAll();
     }
 
-    public Set<Role> findByIdRoles(List<Long> roles) {
-        return new HashSet<>(roleRepository.findAllById(roles));
+    public List<Role> findByIdRoles(List<Long> roles) {
+        return new LinkedList<>(roleRepository.findAllById(roles));
     }
-    public Set<Role> findByIdRoles(Long id) {
+    public List<Role> findByIdRoles(Long id) {
         List<Long> roles  = new LinkedList<>();
         roles.add(id);
         return findByIdRoles(roles);
@@ -35,5 +35,13 @@ public class RoleService {
     public void addDefaultRole() {
         roleRepository.save(new Role(1L,"ROLE_USER"));
         roleRepository.save(new Role(2L,"ROLE_ADMIN"));
+    }
+
+    public Role getRole(String userRole) {
+        return roleRepository.findByUsername(userRole);
+    }
+
+    public List<Role> getAllRoles() {
+        return roleRepository.findAll();
     }
 }

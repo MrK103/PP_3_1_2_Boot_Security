@@ -1,34 +1,46 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<!--</form>-->
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="/css/style.css"/>
-    <title>Login</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
 </head>
 <body>
-<br>
-<h1>Login</h1>
-<form method="POST" th:action="@{/login}">
-    <table>
-        <tr>
-            <td>
+<div class="wrapper fadeInDown">
+    <div id="formContent">
+        <!-- Tabs Titles -->
 
-                <input type="text" name="username" id="username"/>
-                <label for="username">Login</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="password" name="password" id="password"/>
-                <label for="password">Password</label>
+        <!-- Icon -->
+        <div class="fadeIn first">
+        </div>
+        <br>
+        LOGIN MENU
+        <!-- Login Form -->
+        <form method="POST" th:action="@{/login}">
+            <input type="text" id="username" class="fadeIn second" name="username" placeholder="username">
+            <input type="text" id="password" class="fadeIn third" name="password" placeholder="password">
+            <input type="submit" class="fadeIn fourth" value="Log In">
+        </form>
 
-            </td>
-        </tr>
-    </table>
-    <br>
-    <button class="buttonLogout" type="submit">Login</button>
-    <button class="button" type="button" onclick="window.location.href = '/registration/new';">Registration</button>
+        <!-- Remind Passowrd -->
+        <div id="formFooter">
+            <a class="underlineHover" href="#">Forgot Password?</a>
+        </div>
 
-</form>
+    </div>
+</div>
+
 </body>
 </html>
