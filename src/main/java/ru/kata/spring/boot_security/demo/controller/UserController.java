@@ -1,10 +1,10 @@
 package ru.kata.spring.boot_security.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.service.RoleService;
@@ -12,52 +12,83 @@ import ru.kata.spring.boot_security.demo.service.UserService;
 
 import javax.validation.Valid;
 import java.security.Principal;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-
-@Controller
+@RestController
+@RequestMapping("/api")
 public class UserController {
+
     private final UserService userService;
-    private final RoleService roleService;
 
     @Autowired
     public UserController(RoleService roleService, UserService userService) {
-        this.roleService = roleService;
         this.userService = userService;
     }
 
-
-    @RequestMapping(value = {"/login"}, method = RequestMethod.GET)
-    public String showLogin() {
-        return "login";
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getUsers() {
+        return new ResponseEntity<>(userService.findAll(),HttpStatus.OK);
     }
 
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+            String error = getErrorsFromBindingResult(bindingResult);
+            System.err.println(error);
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            userService.save(user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (RuntimeException u) {
+            return ResponseEntity.ok(HttpStatus.IM_USED);
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<?> pageDelete(@PathVariable("id") long id) {
+        userService.deleteById(id);
+        return ResponseEntity.ok(HttpStatus.OK);
+    }
+
+    @GetMapping("users/{id}")
+    public ResponseEntity<User> getUser (@PathVariable("id") long id) {
+        System.out.println(id);
+        User user = userService.getById(id);
+        return new ResponseEntity<>(user,HttpStatus.OK);
+    }
 
     @GetMapping("/user")
-    public String pageForUser(Model model, Principal principal) {
-        model.addAttribute("user", userService.findByUsername(principal.getName()));
-        return "user";
-    }
-    @GetMapping("registration/new")
-    public String pageregistration(User user, Model model) {
-        model.addAttribute("listRoles",roleService.findAllRole());
-        return "registration";
+    public ResponseEntity<User> getUserByUsername (Principal principal) {
+        User user = userService.findByUsername(principal.getName());
+        return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
-    @PostMapping("registration/new")
-    public String pageRegisterUser(@RequestParam("role") ArrayList<Long> roles,
-                                   @ModelAttribute("user") @Valid User user,
-                                   BindingResult bindingResult) {
+    @PutMapping("/users/{id}")
+    public ResponseEntity<?> pageEdit(@PathVariable("id") long id,
+                         @Valid @RequestBody User user,
+                         BindingResult bindingResult) {
+
         if (bindingResult.hasErrors()) {
-            return "registration";
+            String error = getErrorsFromBindingResult(bindingResult);
+            System.err.println(error);
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
         }
-        if (userService.findByUsername(user.getUsername()) != null) {
-            bindingResult.addError(new FieldError("username", "username",
-                    String.format("User with name \"%s\" is already exist!", user.getUsername())));
-            return "create";
+
+        try {
+            userService.save(user);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (RuntimeException u) {
+            return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
         }
-        user.setRoles(roleService.findByIdRoles(roles));
-        userService.save(user);
-        return "redirect:/login";
+    }
+
+    private String getErrorsFromBindingResult(BindingResult bindingResult) {
+        return bindingResult.getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining("; "));
     }
 }
