@@ -23,24 +23,27 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new BCryptPasswordEncoder(12);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.formLogin()
-//                .loginPage("/login") // страница с формой логина
+                .loginPage("/login") // страница с формой логина
                 .successHandler(successUserHandler) // логика обработки при логине
                 .loginProcessingUrl("/login") //action с формы логина
                 .usernameParameter("username") //параметры логина и пароля с формы логина
                 .passwordParameter("password")
+                .failureUrl("/login-error")
                 .permitAll(); //доступ к форме логина всем
         http
                 .authorizeRequests() //страница регистрации недоступной для авторизированных пользователей
                 .antMatchers("/css/**").permitAll()
-                .antMatchers("/registration/**").anonymous()
+                .antMatchers("/resources/**").permitAll()
+                .antMatchers("/js/**").permitAll()
+                .antMatchers("/**").permitAll()
                 .antMatchers("/login").anonymous() //страница аутентификаци доступна анонимам
-                .antMatchers("/user/**").access("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
+                .antMatchers("/**").access("hasAnyRole('ROLE_USER','ROLE_ADMIN')")
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')").anyRequest().authenticated();
 
         http.logout()
