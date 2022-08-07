@@ -1,5 +1,8 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "Users", description = "methods for work with users")
 public class UserController {
 
     private final UserService userService;
@@ -27,10 +31,12 @@ public class UserController {
     }
 
     @GetMapping("/users")
+    @Operation(summary = "information about all users")
     public ResponseEntity<List<User>> getUsers() {
         return new ResponseEntity<>(userService.findAll(),HttpStatus.OK);
     }
 
+    @Operation(summary = "Create new users")
     @PostMapping("/users")
     public ResponseEntity<?> createUser(@Valid @RequestBody User user, BindingResult bindingResult) {
 
@@ -47,11 +53,14 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Delete user by id")
     @DeleteMapping("/users/{id}")
     public ResponseEntity<?> pageDelete(@PathVariable("id") long id) {
         userService.deleteById(id);
         return ResponseEntity.ok(HttpStatus.OK);
     }
+
+    @Operation(summary = "information about user by id")
 
     @GetMapping("users/{id}")
     public ResponseEntity<User> getUser (@PathVariable("id") long id) {
@@ -60,12 +69,14 @@ public class UserController {
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
+    @Operation(summary = "information about user by name (for authentication)")
     @GetMapping("/user")
     public ResponseEntity<User> getUserByUsername (Principal principal) {
         User user = userService.findByUsername(principal.getName());
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
 
+    @Hidden
     @PutMapping("/users/{id}")
     public ResponseEntity<?> pageEdit(@PathVariable("id") long id,
                          @Valid @RequestBody User user,
@@ -84,7 +95,7 @@ public class UserController {
             return ResponseEntity.ok(HttpStatus.BAD_REQUEST);
         }
     }
-
+    @Operation(summary = "collect all errors")
     private String getErrorsFromBindingResult(BindingResult bindingResult) {
         return bindingResult.getFieldErrors()
                 .stream()

@@ -37,5 +37,9 @@ public class MainController {
     public String mainPage() {
         return "index";
     }
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
 
 }
